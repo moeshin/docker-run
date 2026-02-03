@@ -1,4 +1,4 @@
-name: Docker Build for None
+name: Build for None
 
 on:
   workflow_dispatch:
@@ -28,4 +28,4 @@ jobs:
           platforms: ${{ env.BUILD_PLATFORMS }}
           push: true
           target: none
-          tags: moeshin/run:none,moeshin/scratch
+          tags: moeshin/run:none,moeshin/run:scratch
