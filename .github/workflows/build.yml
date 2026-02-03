@@ -1,0 +1,70 @@
+name: Docker Build
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 12 3 */7 * *
+
+env:
+  BUILD_PLATFORMS: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8,linux/ppc64le,linux/riscv64,linux/s390x
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Init
+        id: init
+        run: |
+          echo "TAG_SUFFIX=$(date +%Y%m%d%H%M%S)" >> "$GITHUB_OUTPUT"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push for t
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ env.BUILD_PLATFORMS }}
+          push: true
+          target: t
+          tags: moeshin/run:t,moeshin/run:t-${{ steps.init.outputs.TAG_SUFFIX }}
+
+      - name: Build and push for c
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ env.BUILD_PLATFORMS }}
+          push: true
+          target: c
+          tags: moeshin/run:c,moeshin/run:c-${{ steps.init.outputs.TAG_SUFFIX }}
+
+      - name: Build and push for cc
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ env.BUILD_PLATFORMS }}
+          push: true
+          target: cc
+          tags: moeshin/run:cc,moeshin/run:cc-${{ steps.init.outputs.TAG_SUFFIX }}
+
+      - name: Build and push for tc
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ env.BUILD_PLATFORMS }}
+          push: true
+          target: tc
+          tags: moeshin/run:latest,moeshin/run:tc,moeshin/run:tc-${{ steps.init.outputs.TAG_SUFFIX }}
+
+      - name: Build and push for tcc
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ env.BUILD_PLATFORMS }}
+          push: true
+          target: tcc
+          tags: moeshin/run:tcc,moeshin/run:tcc-${{ steps.init.outputs.TAG_SUFFIX }}
